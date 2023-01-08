@@ -17,8 +17,9 @@ export default function MyPurchases({ marketplace, nft, account }) {
   // const [Sale, setSale] = useState([])
 
   const loadPurchasedItems = async () => {
+
   const tokenCount = await nft.tokenCount()
-  let purchasedItem = [];
+  let purchasedItem=[];
   for(let i=1; i<=tokenCount;i++){
   const ownerof = await nft.ownerOf(i) 
   if (account.toString().toLowerCase() == ownerof.toString().toLowerCase()){
@@ -37,7 +38,7 @@ export default function MyPurchases({ marketplace, nft, account }) {
       // get total price of item (item price + fee)
       // const totalPrice = await marketplace.getTotalPrice(i.itemId)
       // define listed item object
-      purchasedItem.push( {
+      purchasedItem.push({
         nft:nft.address,
         itemId: i,
         marketplace: marketplace.address,
@@ -45,16 +46,17 @@ export default function MyPurchases({ marketplace, nft, account }) {
         description: metadata.description,
         image: metadata.image.pinataURL
       })
-           
+      setPurchases(purchasedItem)   
     }
-    setLoading(false)
-    setPurchases(purchasedItem)
   }
+  setLoading(false)
   }
+
+
 
   function getData(val){
     setPrice(val.target.value)
-  }
+  } 
   function getTime(val){
     setTime(val.target.value)
   }
@@ -79,9 +81,18 @@ export default function MyPurchases({ marketplace, nft, account }) {
     setAuction(false)
   }
 
+  const getPendingReturns = async(account)=>{
+   const getbid=await marketplace.getPendingReturns(account);
+   console.log("this is ",getbid.toString());
+  }
+
+  const withdraw = async(account)=>{
+    await marketplace.withdraw(account);
+  }
+
   useEffect(() => {
-    loadPurchasedItems()
-  }, [])
+    loadPurchasedItems();
+  },[])
 
   if (loading) return (
     <main style={{ padding: "1rem 0" }}>
@@ -91,6 +102,9 @@ export default function MyPurchases({ marketplace, nft, account }) {
   return (
 
     <div className="flex justify-center">
+       <div>
+    <Button onClick={()=>withdraw(account)} style={{ marginLeft: "1000px",marginTop: "5px" }}> Return Bids </Button>
+    </div>
       {purchases.length > 0 ?
         <div className="px-5 container">
           <Row xs={1} md={2} lg={4} className="g-4 py-5">
@@ -181,15 +195,14 @@ export default function MyPurchases({ marketplace, nft, account }) {
     </Modal>
     </div>
 
-
-
-
-
-
     </div>
-        : (
+        : ( 
           <main style={{ padding: "1rem 0" }}>
+    <Button onClick={()=>withdraw(account)} style={{ marginLeft: "1000px",marginTop: "5px" }}> Return Bids </Button>
+
             <h2>No purchases</h2>
+            <div>
+    </div>
           </main>
         )}
     </div>

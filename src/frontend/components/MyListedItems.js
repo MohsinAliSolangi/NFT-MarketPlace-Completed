@@ -29,16 +29,16 @@ export default function MyListedItems({ marketplace, nft, account }) {
   const loadListedItems = async () => {
     // Load all sold items that the user listed
     const itemCount = await marketplace.itemCount()
-    let listedItems = []
+    let ListedItems = []
     let soldItems = []
     for (let indx = 1; indx <= itemCount; indx++) {
       const i = await marketplace.items(indx)
       if (i.seller.toLowerCase() === account) {
         // get uri url from nft contract
-        console.log("&&&&&&&&&&&&",i.tokenId.toString());
+        // console.log("&&&&&&&&&&&&",i.tokenId.toString());
         const uri = await nft.tokenURI(i.tokenId);
         // use uri to fetch the nft metadata stored on ipfs 
-        console.log("this is fatch uri",uri);
+        // console.log("this is fatch uri",uri);
         const response = await fetch(uri)
         const metadata = await response.json()
         // get total price of item (item price + fee)
@@ -52,17 +52,18 @@ export default function MyListedItems({ marketplace, nft, account }) {
           description: metadata.description,
           image: metadata.image.pinataURL
         }
-        listedItems.push(item)
+        ListedItems.push(item)
         // Add listed item to sold items array if sold
         if (i.sold) soldItems.push(item)
       }
     }
     setLoading(false)
-    setListedItems(listedItems)
+    setListedItems(ListedItems)
     setSoldItems(soldItems)
   }
   useEffect(() => {
-    loadListedItems()
+    loadListedItems();
+    console.log("this is listed items",listedItems);  
   }, [])
   if (loading) return (
     <main style={{ padding: "1rem 0" }}>

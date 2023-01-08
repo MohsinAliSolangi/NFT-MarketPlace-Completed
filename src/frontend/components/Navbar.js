@@ -10,15 +10,15 @@ const Navigation = ({ web3Handler, account }) => {
             <Container>
                 <Navbar.Brand href="http://www.dappuniversity.com/bootcamp">
                     <img src={market} width="40" height="40" className="" alt="" />
-                    &nbsp; DApp NFT Marketplace
+                    &nbsp; NFT's Marketplace
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="me-auto">
-                        <Nav.Link as={Link} to="/">Home</Nav.Link>
-                        <Nav.Link as={Link} to="/create">Create</Nav.Link>
-                        <Nav.Link as={Link} to="/my-listed-items">My Listed Items</Nav.Link>
-                        <Nav.Link as={Link} to="/my-purchases">My Purchases</Nav.Link>
+                        <Nav.Link as={Link} to="/">MARKETPLACE</Nav.Link>
+                        <Nav.Link as={Link} to="/create">MINT NFT</Nav.Link>
+                        {/* <Nav.Link as={Link} to="/my-listed-items">My Listed Items</Nav.Link> */}
+                        <Nav.Link as={Link} to="/my-purchases">My NFT's</Nav.Link>
                     </Nav>
                     <Nav>
                         {account ? (

@@ -10,7 +10,7 @@ import { uploadFileToIPFS, uploadJSONToIPFS } from "./pinata";
 
 const Create = ({ marketplace, nft }) => {
   const [image, setImage] = useState('')
-  const [price, setPrice] = useState(null)
+  //const [price, setPrice] = useState(null)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
 
@@ -35,40 +35,43 @@ const Create = ({ marketplace, nft }) => {
 
   const createNFT = async () => {
     console.log("this is image ",image);  
-    console.log("this is price ",price);  
     console.log("this is name ",name);  
     console.log("this is description ",description);  
    
-    if (!image || !price || !name || !description) return
+    if (!image || !name || !description) return
   
     const nftJSON = {
-      name, description, price, image
+      name, description, image
   }
 
     try{
      
       const result = await uploadJSONToIPFS(nftJSON)
       mintThenList(result)
-      console.log("this is url ",result);
+      // console.log("this is url ",result);
     } catch(error) {
       console.log("ipfs uri upload error: ", error)
     }
   }
   const mintThenList = async (result) => {
-    const temp = result.pinataURL.replace("https://gateway.pinata.cloud/ipfs/", "https://ipfs.io/ipfs/")
-    console.log("This is temp",temp)
-    const uri = `${temp}`
+    // const temp = result.pinataURL.replace("https://gateway.pinata.cloud/ipfs/", "https://ipfs.io/ipfs/")
+    // console.log("This is temp",temp)
+    // const uri = `${temp}`
     // mint nft 
-    await(await nft.mint(uri)).wait()
+    //
+    
+    console.log("This is result.pinataURL",result.pinataURL);
+
+    await(await nft.mint(result.pinataURL)).wait()
     // get tokenId of new nft 
-    const id = await nft.tokenCount()
+    //const id = await nft.tokenCount()
     // approve marketplace to spend nft
-    await(await nft.setApprovalForAll(marketplace.address, true)).wait()
-    // add nft to marketplace
-    const listingPrice = ethers.utils.parseEther(price.toString())
-    console.log("this is id ", id.toString());
-    await(await marketplace.makeItem(nft.address, id, listingPrice)).wait()
-    console.log("%%%%%%%%%%%%%%%%%%%%%",nft.address, id.toString(), listingPrice);
+    // await(await nft.setApprovalForAll(marketplace.address, true)).wait()
+    // // add nft to marketplace
+    // const listingPrice = ethers.utils.parseEther(price.toString())
+    // console.log("this is id ", id.toString());
+    // await(await marketplace.makeItem(nft.address, id, listingPrice)).wait()
+    // console.log("%%%%%%%%%%%%%%%%%%%%%",nft.address, id.toString(), listingPrice);
   }
   return (
     <div className="container-fluid mt-5">
@@ -84,7 +87,7 @@ const Create = ({ marketplace, nft }) => {
               />
               <Form.Control onChange={(e) => setName(e.target.value)} size="lg" required type="text" placeholder="Name" />
               <Form.Control onChange={(e) => setDescription(e.target.value)} size="lg" required as="textarea" placeholder="Description" />
-              <Form.Control onChange={(e) => setPrice(e.target.value)} size="lg" required type="number" placeholder="Price in ETH" />
+              {/* <Form.Control onChange={(e) => setPrice(e.target.value)} size="lg" required type="number" placeholder="Price in ETH" /> */}
               <div className="d-grid px-0">
                 <Button onClick={createNFT} variant="primary" size="lg">
                   Create & List NFT!

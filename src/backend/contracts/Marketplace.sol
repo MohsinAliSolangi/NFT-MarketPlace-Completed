@@ -119,6 +119,8 @@ contract Marketplace is ReentrancyGuard {
      // Array of bids in an auction 
     mapping(uint256 => Bid[]) private auctionBids; 
 
+    mapping(address => uint) private pendingReturns; 
+   
     
     struct AuctionDetails { 
     
@@ -226,7 +228,6 @@ contract Marketplace is ReentrancyGuard {
         
     // update item to sold
     item.sold = true;
-     
     // emit Bought event
     emit Bought(
         itemId,
@@ -237,9 +238,15 @@ contract Marketplace is ReentrancyGuard {
         msg.sender
         );
 
+    uint _totalPrice = getTotalPrice(itemId);
+    // item.seller.transfer(item.price);
+    // feeAccount.transfer(_totalPrice - item.price);
+    console.log("this is total price ");
+    
     delete payedBids[auction.highestBidder][itemId]; 
     uint256 payment = auction.highestBid * 1 wei; 
-    payable (address(this)).transfer(payment); 
+    payable (address(this)).transfer(payment);
+     _returnBids(itemId); 
     totalAuctionCompleted ++; 
     } 
     
@@ -277,5 +284,45 @@ contract Marketplace is ReentrancyGuard {
     return auction.endTime; 
     } 
 
-  
+     // cancel offer on the marketplace
+    function cancelListing(uint itemId) external nonReentrant {
+        Item storage item = items[itemId];
+        require(item.seller == msg.sender,"you areNot allow to cancel list");
+        // // increment itemCount
+        // itemCount ++;
+        // transfer nft
+        item.nft.transferFrom( address(this), item.seller, item.tokenId); 
+        item.sold = true; }
+
+
+    // function withdraw(uint256 itemId , address payable account) public payable { // msg.sender -> address in parameter 
+    //     AuctionDetails memory auction = _auctionDetail[itemId]; 
+    //     require(payedBids[account][itemId] > 0 , "No Tokens pending"); 
+    //     require(auction.highestBidder != account , "You cant withdraw"); 
+    //     uint256 amount = payedBids[account][itemId]; 
+    //     delete payedBids[account][itemId]; 
+    //     account.transfer(amount); 
+    // }
+    
+    function withdraw(address payable account) public payable { // msg.sender -> address in parameter 
+      uint256 temp = getPendingReturns(account);
+      require(temp>0,"you dont have retunr bids");
+      account.transfer(temp);
+      delete pendingReturns[account];
+    }
+    
+    function _returnBids(uint256 itemId) private {    
+      Bid[] memory _bid = auctionBids[itemId]; 
+      AuctionDetails memory auction= _auctionDetail[itemId]; 
+    
+      for(uint256 i=0 ;i<=_bid.length-1 ;i++){ 
+      if(_bid[i].amount != auction.highestBid ){ 
+      pendingReturns[_bid[i].bidder] += payedBids[_bid[i].bidder][itemId]; 
+     } } } 
+
+    function getPendingReturns(address account)public view returns(uint256){ 
+    return pendingReturns[account]; 
+    }
+
+    
 }

@@ -23,10 +23,13 @@ const Home = ({ marketplace, nft, account }) => {
 
     // Load all unsold items
     const itemCount = await marketplace.itemCount()
+    console.log("this is itme count+++++++++++++++",itemCount.toString());
     let items = []
+    
     for (let i = 1; i <= itemCount; i++) {
-      const item = await marketplace.items(i)
-      if (!item.sold) {
+    const item = await marketplace.items(i)
+
+    if (!item.sold) {
 
         const auction = await marketplace.isAuction(item.tokenId.toString())
         console.log("this is nft ", auction)
@@ -80,6 +83,11 @@ const Home = ({ marketplace, nft, account }) => {
     setmodal(false)
   }
 
+  const CancelListing = async () => {
+    marketplace.cancelListing(items[0].itemId)
+
+  }
+
   function getData(val) {
     setPrice(val.target.value)
   }
@@ -98,8 +106,7 @@ const Home = ({ marketplace, nft, account }) => {
 
 
   useEffect(() => {
-    loadMarketplaceItems()
-
+    loadMarketplaceItems();
   }, [])
 
 
@@ -139,7 +146,9 @@ const Home = ({ marketplace, nft, account }) => {
                             <Countdown date={Time * 1000} /></div>
                           : <div className='d-grid'><button onClick={() => concludeAuction()} variant="primary" size="lg" >GetNFT</button></div>
                         : account.toString().toLowerCase() === item.seller.toString().toLowerCase()
-                          ? <div className="text-emerald-700">You are the owner of this NFT</div>
+                          ? <Button onClick={() => CancelListing(item)} variant="primary" size="lg">
+                            Cancel Listing 
+                            </Button>
                           : <Button onClick={() => buyMarketItem(item)} variant="primary" size="lg">
                             Buy NFT
                             {ethers.utils.formatEther(item.totalPrice)} ETH
