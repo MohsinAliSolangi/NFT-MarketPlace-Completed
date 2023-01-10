@@ -4,6 +4,7 @@ import { Row, Col, Card, Button } from 'react-bootstrap'
 import { Modal, ModalHeader, Form, ModalBody } from "reactstrap"
 import ReactDOM from 'react-dom';
 import Countdown from 'react-countdown';
+import NftBox from './NftBox';
 
 
 
@@ -11,25 +12,29 @@ import Countdown from 'react-countdown';
 const Home = ({ marketplace, nft, account }) => {
   const [loading, setLoading] = useState(true)
   const [items, setItems] = useState([])
-  //  const [Auction, setAuction] = useState(false)
   const [modal, setmodal] = useState(false)
   const [price, setPrice] = useState(null)
   const [Time, setTime] = useState(0)
+  const [bid, setbid] = useState(0)
+  const [bidder, setbidder] = useState(null)
   const [NowTime, setNowTime] = useState(0)
 
-  //const [currAddress, updateCurrAddress] = useState("0x0")
+
+
+
+
 
   const loadMarketplaceItems = async () => {
 
     // Load all unsold items
     const itemCount = await marketplace.itemCount()
-    console.log("this is itme count+++++++++++++++",itemCount.toString());
+    console.log("this is itme count+++++++++++++++", itemCount.toString());
     let items = []
-    
-    for (let i = 1; i <= itemCount; i++) {
-    const item = await marketplace.items(i)
 
-    if (!item.sold) {
+    for (let i = 1; i <= itemCount; i++) {
+      const item = await marketplace.items(i)
+
+      if (!item.sold) {
 
         const auction = await marketplace.isAuction(item.tokenId.toString())
         console.log("this is nft ", auction)
@@ -41,19 +46,21 @@ const Home = ({ marketplace, nft, account }) => {
         const response = await fetch(uri)
         const metadata = await response.json()
         // get total price of item (item price + fee)
-        const totalPrice = await marketplace.getTotalPrice(item.itemId)
-        // console.log("###################",item)
-        // console.log("$$$$$$$$$$$$$ this is account address",account)
-        // Add item to items array
+
+        //get Royality fees in %%%%%%%%%%
+        const royality = await nft.getRoyalityFees(item.tokenId);
+        const res = Number(royality.toString()) / 100;
+
         items.push({
           time: temp,
           auction: auction,
-          totalPrice,
+          totalPrice: item.price,
           itemId: item.itemId,
           seller: item.seller,
           name: metadata.name,
           description: metadata.description,
-          image: metadata.image.pinataURL
+          image: metadata.image.pinataURL,
+          Royality: res
 
         })
       }
@@ -77,20 +84,7 @@ const Home = ({ marketplace, nft, account }) => {
   //   setAuction(auction)
   // }
 
-  const placeBid = async () => {
-    const bidding = ethers.utils.parseEther(price)
-    marketplace.bid(items[0].itemId, { value: bidding })
-    setmodal(false)
-  }
 
-  const CancelListing = async () => {
-    marketplace.cancelListing(items[0].itemId)
-
-  }
-
-  function getData(val) {
-    setPrice(val.target.value)
-  }
 
   const getLastTime = async () => {
     const time = await marketplace.getLastTime(items[0]?.itemId.toString())
@@ -100,13 +94,25 @@ const Home = ({ marketplace, nft, account }) => {
     setNowTime(nowDate)
   }
 
-  const concludeAuction = async () => {
-    marketplace.concludeAuction(items[0].itemId.toString(), account)
+
+
+  const getHigestBid = async () => {
+    let bid = await marketplace.getHighestBid(items[0].itemId);
+    setbid(ethers.utils.formatEther(bid))
+    console.log("this is bid", bid.toString());
   }
+  const getHigestBidder = async () => {
+    let bidder = await marketplace.getHighestBidder(items[0].itemId);
+    setbidder(bidder)
+    console.log("this is bid", bidder.toString());
+  }
+
 
 
   useEffect(() => {
     loadMarketplaceItems();
+    getHigestBidder()
+    getHigestBid()
   }, [])
 
 
@@ -114,8 +120,6 @@ const Home = ({ marketplace, nft, account }) => {
     if (items.length > 0)
       getLastTime();
   }, [items]);
-
-  console.log(items, NowTime)
 
   if (loading) return (
     <main style={{ padding: "1rem 0" }}>
@@ -126,68 +130,11 @@ const Home = ({ marketplace, nft, account }) => {
     <div className="flex justify-center">
       {items.length > 0 ?
         <div className="px-5 container">
-          <Row xs={1} md={2} lg={4} className="g-4 py-5">
+          <Row className="mt-5">
             {items.map((item, idx) => (
-              <Col key={idx} className="overflow-hidden">
-                <Card>
-                  <Card.Img variant="top" src={item.image} />
-                  <Card.Body color="secondary">
-                    <Card.Title>{item.name}</Card.Title>
-                    <Card.Text>
-                      {item.description}
-                    </Card.Text>
-                  </Card.Body>
-                  <Card.Footer>
-                    <div className='d-grid'>
-                      {item.time > 0
-                        ?
-                        NowTime < Time
-                          ? <div className='d-grid'><Button onClick={() => setmodal(true)} variant="primary" size="lg"> Place Bid </Button>
-                            <Countdown date={Time * 1000} /></div>
-                          : <div className='d-grid'><button onClick={() => concludeAuction()} variant="primary" size="lg" >GetNFT</button></div>
-                        : account.toString().toLowerCase() === item.seller.toString().toLowerCase()
-                          ? <Button onClick={() => CancelListing(item)} variant="primary" size="lg">
-                            Cancel Listing 
-                            </Button>
-                          : <Button onClick={() => buyMarketItem(item)} variant="primary" size="lg">
-                            Buy NFT
-                            {ethers.utils.formatEther(item.totalPrice)} ETH
-                          </Button>
-                      }
-
-                    </div>
-                  </Card.Footer>
-                </Card>
-              </Col>
+              <NftBox item={item} idx={idx} marketplace={marketplace} nft={nft} account={account} />
             ))}
           </Row>
-          <div>
-            <Modal
-              size='lg'
-              isOpen={modal}
-              toggle={() => setmodal(!modal)}>
-              <ModalHeader
-                toggle={() => setmodal(!modal)}>
-                Place Bid
-              </ModalHeader>
-              <ModalBody>
-                <Form >
-                  <Row>
-                    <div>
-                      <input
-                        required type="number"
-                        className='form-control'
-                        placeholder='Enter Bid'
-                        onChange={getData}></input>
-                    </div>
-                    <div>
-                      <Button onClick={() => placeBid(items[0].itemId)} style={{ marginLeft: "200px", marginTop: "10px" }}> Submit </Button>
-                    </div>
-                  </Row>
-                </Form>
-              </ModalBody>
-            </Modal>
-          </div>
 
 
         </div>

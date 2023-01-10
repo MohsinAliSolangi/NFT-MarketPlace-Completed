@@ -12,19 +12,72 @@ import MarketplaceAbi from '../contractsData/Marketplace.json'
 import MarketplaceAddress from '../contractsData/Marketplace-address.json'
 import NFTAbi from '../contractsData/NFT.json'
 import NFTAddress from '../contractsData/NFT-address.json'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ethers } from "ethers"
 import { Spinner } from 'react-bootstrap'
-
 import './App.css';
+const { ethereum } = window;
+
 
 function App() {
   const [loading, setLoading] = useState(true)
   const [account, setAccount] = useState(null)
   const [nft, setNFT] = useState({})
   const [marketplace, setMarketplace] = useState({})
-  
-  
+  ethereum.on("accountsChanged", async (account) => {
+    setAccount(account[0]);
+    window.location.reload()
+  })
+
+  const changeNetwork = async () => {
+    try {
+      setLoading(true)
+      if (!ethereum) throw new Error("No crypto wallet found");
+      await ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{
+          chainId: "0x7A69"
+          //chainId: "0x1"
+        }]
+      });
+      await web3Handler();
+      setLoading(false)
+    } catch (err) {
+      setLoading(false)
+      console.log(err.message);
+    }
+  };
+  window.ethereum && ethereum.on("chainChanged", async () => {
+    window.location.reload();
+  });
+
+  const checkIsWalletConnected = async () => {
+    try {
+      if (!ethereum) return alert("please install MetaMask");
+      const accounts = await ethereum.request({ method: "eth_accounts" });
+      if (accounts.length) {
+        setAccount(accounts[0]);
+        console.log("Account", accounts[0])
+        // Get provider from Metamask
+        const provider = new ethers.providers.Web3Provider(window.ethereum)
+        // Set signer
+        const signer = provider.getSigner()
+        loadContracts(signer)
+      } else {
+        console.log("No account Found");
+      }
+    } catch (err) {
+
+      throw new Error("No ethereum Object");
+    }
+  }
+
+  useEffect(() => {
+    checkIsWalletConnected();
+  }, [])
+
+
+
   // MetaMask Login/Connect
   const web3Handler = async () => {
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -57,7 +110,7 @@ function App() {
     <BrowserRouter>
       <div className="App">
         <>
-          <Navigation web3Handler={web3Handler} account={account} />
+          <Navigation web3Handler={changeNetwork} account={account} />
         </>
         <div>
           {loading ? (

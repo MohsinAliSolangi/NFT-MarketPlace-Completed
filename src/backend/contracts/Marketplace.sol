@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-
+import "./IERC721.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
 import "hardhat/console.sol";
 
 contract Marketplace is ReentrancyGuard {
@@ -75,14 +73,20 @@ contract Marketplace is ReentrancyGuard {
 
     function purchaseItem(uint _itemId) external payable nonReentrant {
         require(_auctionDetail[_itemId].auction == false,"Auction Not End"); 
-        uint _totalPrice = getTotalPrice(_itemId);
+        uint256 marketTax = getTaxPrice(_itemId);
         Item storage item = items[_itemId];
         require(_itemId > 0 && _itemId <= itemCount, "item doesn't exist");
-        require(msg.value >= _totalPrice, "not enough ether to cover item price and market fee");
+        // require(msg.value >= _totalPrice, "not enough ether to cover item price and market fee");
         require(!item.sold, "item already sold");
+        //Royality Fees 
+        address firstOwner = item.nft.getFirstOwner(item.tokenId);
+        uint256 royality = item.nft.getRoyalityFees(item.tokenId);
+        
+        uint256 temp = getRoyalityFees(item.price,royality);
         // pay seller and feeAccount
-        item.seller.transfer(item.price);
-        feeAccount.transfer(_totalPrice - item.price);
+        feeAccount.transfer(marketTax);
+        payable(firstOwner).transfer(temp);         
+        item.seller.transfer(item.price-(marketTax+temp));
         // update item to sold
         item.sold = true;
         // transfer nft to buyer
@@ -98,8 +102,25 @@ contract Marketplace is ReentrancyGuard {
         );
     }
     
-    function getTotalPrice(uint _itemId) view public returns(uint){
-        return((items[_itemId].price*(100 + feePercent))/100);
+ 
+
+        function getTaxPrice(
+       uint _itemId
+    ) private view returns (uint256) {
+        return (items[_itemId].price/ 10000) * 250;
+    }
+
+
+        function getTaxPriceForAuction(
+       uint _price
+    ) private pure returns (uint256) {
+        return (_price/ 10000) * 250;
+    }
+
+       function getRoyalityFees(
+       uint _price,uint256 noOfBips
+    ) private pure returns (uint256) {
+        return (_price/ 10000) * noOfBips;
     }
 
     /////////////////////////////////// This is Auction /////////////////////////////
@@ -238,14 +259,21 @@ contract Marketplace is ReentrancyGuard {
         msg.sender
         );
 
-    uint _totalPrice = getTotalPrice(itemId);
     // item.seller.transfer(item.price);
     // feeAccount.transfer(_totalPrice - item.price);
     console.log("this is total price ");
+    address firstOwner = item.nft.getFirstOwner(item.tokenId);
+    uint256 royality = item.nft.getRoyalityFees(item.tokenId);   
     
     delete payedBids[auction.highestBidder][itemId]; 
     uint256 payment = auction.highestBid * 1 wei; 
-    payable (address(this)).transfer(payment);
+    uint256 temp = getRoyalityFees(payment,royality);
+    
+    uint256 marketTax = getTaxPriceForAuction(payment);
+    feeAccount.transfer(marketTax);
+    payable(firstOwner).transfer(temp);
+    item.seller.transfer(payment-(marketTax+temp));
+    
      _returnBids(itemId); 
     totalAuctionCompleted ++; 
     } 
@@ -306,7 +334,7 @@ contract Marketplace is ReentrancyGuard {
     
     function withdraw(address payable account) public payable { // msg.sender -> address in parameter 
       uint256 temp = getPendingReturns(account);
-      require(temp>0,"you dont have retunr bids");
+      require(temp>0,"you dont have return bids");
       account.transfer(temp);
       delete pendingReturns[account];
     }
@@ -323,6 +351,18 @@ contract Marketplace is ReentrancyGuard {
     function getPendingReturns(address account)public view returns(uint256){ 
     return pendingReturns[account]; 
     }
+
+    function getHighestBid(uint256 itemId)public view returns(uint256){ 
+    AuctionDetails memory auction = _auctionDetail[itemId]; 
+    return auction.highestBid; 
+  
+    } 
+  
+    function getHighestBidder(uint256 itemId)public view returns(address){ 
+    AuctionDetails memory auction= _auctionDetail[itemId]; 
+    return auction.highestBidder; 
+  
+    } 
 
     
 }
