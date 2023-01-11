@@ -5,9 +5,9 @@ import {
 } from "react-router-dom";
 import Navigation from './Navbar';
 import Home from './Home.js'
-import Create from './Create.js'
+import Create from './MintNFT.js'
 import MyListedItems from './MyListedItems.js'
-import MyPurchases from './MyPurchases.js'
+import MyPurchases from './My NFTs.js'
 import MarketplaceAbi from '../contractsData/Marketplace.json'
 import MarketplaceAddress from '../contractsData/Marketplace-address.json'
 import NFTAbi from '../contractsData/NFT.json'
@@ -37,7 +37,7 @@ function App() {
         method: "wallet_switchEthereumChain",
         params: [{
           chainId: "0x7A69"
-          //chainId: "0x1"
+          //chainId: "0x5"
         }]
       });
       await web3Handler();
@@ -51,7 +51,7 @@ function App() {
     window.location.reload();
   });
 
-  const checkIsWalletConnected = async () => {
+  const checkIsWalletConnected = async () => {  
     try {
       if (!ethereum) return alert("please install MetaMask");
       const accounts = await ethereum.request({ method: "eth_accounts" });
