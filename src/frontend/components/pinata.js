@@ -1,8 +1,7 @@
-//const axios = require('axios');
-import axios, * as others from 'axios';
+const axios = require('axios');
 const FormData = require('form-data');
-const key = "982ce816d0d0f0130a99"; 
-const secret = "a9be28bdcd7d19da1d05f68c8b416506d082ae8d98476e039923e81e7589e335";
+const key = "9fb59bf6ea78a3503e0c"; 
+const secret = "3057c80bbf4c0adc9c6b4568c64cf539a604f0afd2d576b15121a181b6093545";
 
 
 // export const uploadJSONToIPFS = async(JSONBody) => {

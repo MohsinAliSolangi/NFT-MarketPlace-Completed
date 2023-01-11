@@ -3,14 +3,20 @@ import React, { useEffect, useState } from 'react'
 import { Modal, ModalHeader, Form, ModalBody } from "reactstrap"
 import { Row, Col, Card, Button } from 'react-bootstrap'
 import Countdown from 'react-countdown'
+import {useNavigate} from "react-router-dom";
 
-const NftBox = ({ item, idx, marketplace, nft, account }) => {
+const NftBox = ({ item, idx, marketplace, account, loading, setLoading }) => {
   const [modal, setmodal] = useState(false)
   const [price, setPrice] = useState(null)
   const [Time, setTime] = useState(0)
   const [bid, setbid] = useState(0)
   const [bidder, setbidder] = useState(null)
   const [NowTime, setNowTime] = useState(0)
+
+  const navigate = useNavigate();
+
+
+
 
   const getLastTime = async () => {
     try {
@@ -49,8 +55,12 @@ const NftBox = ({ item, idx, marketplace, nft, account }) => {
 
   const CancelListing = async () => {
     try {
-      marketplace.cancelListing(item.itemId);
+      setLoading(true)
+     await (await marketplace.cancelListing(item.itemId)).wait();
+      setLoading(false);
+      navigate('/my-purchases');
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
 
@@ -59,30 +69,54 @@ const NftBox = ({ item, idx, marketplace, nft, account }) => {
 
   const concludeAuction = async () => {
     try {
-      marketplace.concludeAuction(item.itemId, account);
+      setLoading(true);
+    await (await marketplace.concludeAuction(item.itemId, account)).wait();
+      setLoading(false);
+      navigate('/my-purchases')
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
 
   }
 
+  const cancellAuction = async () => {
+    try {
+      setLoading(true);
+    await (await marketplace.cancellAuction(item.itemId, account)).wait();
+      setLoading(false);
+      navigate('/my-purchases')
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+
+  }
+
+
   const buyMarketItem = async (item) => {
     try {
+      setLoading(true)
       console.log("this is item id ", item.itemId.toString())
       await (await marketplace.purchaseItem(item.itemId.toString(), { value: item.totalPrice })).wait()
-      // loadMarketplaceItems()
+      setLoading(false);
+      navigate('/my-purchases')
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   }
 
 
   const placeBid = async () => {
     try {
+      setLoading(true);
       const bidding = ethers.utils.parseEther(price)
-      marketplace.bid(item.itemId, { value: bidding })
+      await (await marketplace.bid(item.itemId, { value: bidding })).wait()
       setmodal(false);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
 
@@ -99,11 +133,11 @@ const NftBox = ({ item, idx, marketplace, nft, account }) => {
     getLastTime();
     getHigestBid();
     getHigestBidder();
-  }, [bidder, bid]);
+  },[bidder,bid]);
 
 
   return (
-    <div className="flex justify-center">
+    <>
       <Col lg={4} key={idx} className="overflow-hidden">
         <Card>
           <Card.Img variant="top" src={item.image} />
@@ -113,7 +147,12 @@ const NftBox = ({ item, idx, marketplace, nft, account }) => {
               {item.description}
 
             </Card.Text>
+            <div> 
             <Card.Text>
+              {`Royality Fees : ${item.Royality.toString()} %`}
+            </Card.Text>
+            { item.time > 0 ?         
+             <div> <Card.Text>
               {`Highest Bid : ${bid} ETH`}
 
             </Card.Text>
@@ -121,23 +160,55 @@ const NftBox = ({ item, idx, marketplace, nft, account }) => {
               {`Highest Bidder : ${bidder?.slice(0, 5)}...${bidder?.slice(bidder.length - 4)}`}
             </Card.Text>
 
-            <Card.Text>
-              {`Royality Fees ${item.Royality.toString()} %`}
-            </Card.Text>
+           
+            </div>
+            : 
+           <></> }
+            </div>
+      
+ 
           </Card.Body>
           <Card.Footer>
             <div className='d-grid'>
               {item.time > 0
                 ?
                 NowTime < Time
-                  ? <div className='d-grid'><Button onClick={() => setmodal(true)} variant="primary" size="lg"> Place Bid </Button>
+                  ? 
+                  account.toString().toLowerCase() === item.seller.toString().toLowerCase()
+                  ?
+                  <div className='d-grid'>
+                    <Button variant="primary" size="lg" disabled={true} > Auction is in progress </Button> 
+                    </div>
+                    :
+                    <div className='d-grid'>
+                    <Button onClick={() => setmodal(true)} variant="primary" size="lg" disabled={loading} > Place Bid </Button>
                     <Countdown date={Time * 1000} /></div>
-                  : <div className='d-grid'><button onClick={() => concludeAuction()} variant="primary" size="lg" >GetNFT</button></div>
+                  :
+                  bid>0 && bidder?.toString().toLowerCase() === account?.toString().toLowerCase()
+                  ? 
+                  <div className='d-grid'>
+                    <Button onClick={() => concludeAuction()} variant="primary" size="lg" disabled={loading} > GET NFT </Button> 
+                  </div>
+                   : 
+                 account.toString().toLowerCase() !== item.seller.toString().toLowerCase()
+                 ? <div className='d-grid'>
+                 <Button variant="primary" size="lg" disabled={true} > Auction has Ended </Button> 
+               </div>
+               
+               :bid>0 ?
+                  <div className='d-grid'>
+                   <Button variant="primary" size="lg" disabled={true} > Auction has Ended </Button> 
+                 </div>
+                :
+                <div className='d-grid'>
+                <Button onClick={() => cancellAuction()} variant="primary" size="lg" disabled={loading} > Take your NFT </Button> 
+              </div>
+                  
                 : account.toString().toLowerCase() === item.seller.toString().toLowerCase()
-                  ? <Button onClick={() => CancelListing(item)} variant="primary" size="lg">
+                  ? <Button onClick={() => CancelListing(item)} variant="primary" size="lg" disabled={loading}>
                     Cancel Listing
                   </Button>
-                  : <Button onClick={() => buyMarketItem(item)} variant="primary" size="lg">
+                  : <Button onClick={() => buyMarketItem(item)} variant="primary" size="lg" disabled={loading}>
                     Buy NFT
                     {ethers.utils.formatEther(item.totalPrice)} ETH
                   </Button>
@@ -168,13 +239,15 @@ const NftBox = ({ item, idx, marketplace, nft, account }) => {
                   onChange={getData}></input>
               </div>
               <div>
+
                 <Button onClick={() => placeBid(item.itemId)} style={{ marginLeft: "200px", marginTop: "10px" }}> Submit </Button>
               </div>
             </Row>
           </Form>
         </ModalBody>
       </Modal>
-    </div>
+
+    </>
 
 
   )

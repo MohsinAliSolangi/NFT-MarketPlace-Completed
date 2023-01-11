@@ -2,16 +2,26 @@ import { useState, useEffect } from 'react'
 import { ethers } from "ethers"
 import { Row, Col, Card, Button, ModalBody } from 'react-bootstrap'
 import { Modal, ModalHeader, Form } from "reactstrap"
-import { getValue } from '@testing-library/user-event/dist/utils'
+
 
 
 export default function MyPurchases({ marketplace, nft, account }) {
   const [loading, setLoading] = useState(true)
+  const [load, setLoad] = useState(false);
+  const [Bid, setBid] = useState(true);
   const [purchases, setPurchases] = useState([])
   const [modal, setmodal] = useState(false)
   const [Auction, setAuction] = useState(false)
   const [price, setPrice] = useState(null)
   const [Time, setTime] = useState(null)
+  const [chainId,setChainId] = useState()
+  
+  const getChainId = ()=> {
+    const id = Number(window.ethereum.chainId)
+    setChainId(id)
+    console.log("rabeeb",id)
+  }
+  
 
 
   const loadPurchasedItems = async () => {
@@ -64,12 +74,16 @@ export default function MyPurchases({ marketplace, nft, account }) {
 
   const SellItem = async (purchases) => {
     try {
+      setLoad(true);
       await (await nft.setApprovalForAll(purchases[0].marketplace, true)).wait()
       const listingPrice = ethers.utils.parseEther(price)
       const nftId = purchases[0].itemId.toString();
       await (await marketplace.makeItem(purchases[0].nft, nftId, listingPrice)).wait()
-      setmodal(false)
+      setmodal(false);
+      setLoad(false);
+      window.location.reload()
     } catch (error) {
+      setLoad(false);
       console.log(error)
     }
 
@@ -78,24 +92,30 @@ export default function MyPurchases({ marketplace, nft, account }) {
 
   const createAuction = async (purchases) => {
     try {
+      setLoad(true);
       await (await nft.setApprovalForAll(purchases[0].marketplace, true)).wait()
       const listingPrice = ethers.utils.parseEther(price)
       const nftId = purchases[0].itemId.toString();
       const auctionTime = Time;
       await (await marketplace.createAuction(purchases[0].nft, nftId, listingPrice, auctionTime)).wait()
-      setAuction(false)
-
+      setAuction(false)  
+      setmodal(false);  
+      setLoad(false);
+      window.location.reload()
     } catch (error) {
+      setLoad(false);
       console.log(error)
     }
   }
 
 
-  const getPendingReturns = async (account) => {
+  const getPendingReturns = async () => {
     try {
-
       const getbid = await marketplace.getPendingReturns(account);
-      console.log("this is ", getbid.toString());
+      console.log("rabeeb",getbid)
+      if(getbid>0){
+        setBid(false);
+      }   
     } catch (error) {
       console.log(error)
     }
@@ -104,34 +124,52 @@ export default function MyPurchases({ marketplace, nft, account }) {
 
   const withdraw = async (account) => {
     try {
-      await marketplace.withdraw(account);
+      setLoad(true);
+      await(await marketplace.withdraw(account)).wait();
+      setLoad(false); 
+      window.location.reload()
     } catch (error) {
+      setLoad(false); 
       console.log(error);
     }
 
   }
 
-  
+  useEffect(()=>{
+    getChainId()
+  },[])
+
   useEffect(() => {
     loadPurchasedItems();
-  }, [])
+    getPendingReturns();
+  }, [account])
 
-  if (loading) return (
-    <main style={{ padding: "1rem 0" }}>
-      <h2>Loading...</h2>
-    </main>
-  )
+
+  // if(chainId ==5) {
+  if(chainId ==31337) {
+    if (loading) return (
+      <main style={{ padding: "1rem 0" }}>
+        <h2>Loading...</h2>
+      </main>
+    )
+  }
+ 
   return (
 
     <div className="flex justify-center">
-      <div>
-        <Button onClick={() => withdraw(account)} style={{ marginLeft: "1000px", marginTop: "5px" }}> Return Bids </Button>
-      </div>
+  {(
+  chainId == "31337"
+  // chainId == "5"
+  ?
+  <div>
+  <div>
+        <Button onClick={() => withdraw(account)} style={{ marginLeft: "1000px", marginTop: "5px" }} disabled={Bid || load}> Return Bids </Button>
+  </div>
       {purchases.length > 0 ?
         <div className="px-5 container">
           <Row xs={1} md={2} lg={4} className="g-4 py-5">
             {purchases.map((item, idx) => (
-              <Col key={idx} className="overflow-hidden">
+              <Col lg={4} key={idx} className="overflow-hidden">
                 <Card>
                   <Card.Img variant="top" src={item.image} />
                   <Card.Body color="secondary">
@@ -145,17 +183,16 @@ export default function MyPurchases({ marketplace, nft, account }) {
                     </Card.Text>
                   </Card.Body>
                   <Card.Footer>
-                    {/* {ethers.utils.formatEther(item.totalPrice)} ETH  */}
+                  
                     <div className='d-grid'>
-                      <Button onClick={() => setmodal(true)} variant="primary" size="lg" >
-                        {/* onClick={() => SellItem(purchases)} */}
+                      <Button onClick={() => setmodal(true)} variant="primary" size="lg">
                         Sell
                       </Button>
                     </div>
                     <br></br>
                     <div className='d-grid'>
                       <Button onClick={() => setAuction(true)} variant="primary" size="lg" >
-                        {/* onClick={() => SellItem(purchases)} */}
+                        
                         SetAuction
                       </Button>
                     </div>
@@ -184,7 +221,7 @@ export default function MyPurchases({ marketplace, nft, account }) {
                         onChange={getData}></input>
                     </div>
                     <div>
-                      <Button onClick={() => SellItem(purchases)} style={{ marginLeft: "200px", marginTop: "10px" }}> Submit </Button>
+                      <Button onClick={() => SellItem(purchases)} style={{ marginLeft: "200px", marginTop: "10px" }} disabled={load}> Submit </Button>
                     </div>
                   </Row>
                 </Form>
@@ -219,7 +256,7 @@ export default function MyPurchases({ marketplace, nft, account }) {
                         onChange={getTime}></input>
                     </div>
                     <div>
-                      <Button onClick={() => createAuction(purchases)} style={{ marginLeft: "200px", marginTop: "10px" }}> Submit </Button>
+                      <Button onClick={() => createAuction(purchases)} style={{ marginLeft: "200px", marginTop: "10px" }} disabled={load}> Submit </Button>
                     </div>
                   </Row>
                 </Form>
@@ -237,6 +274,11 @@ export default function MyPurchases({ marketplace, nft, account }) {
             </div>
           </main>
         )}
-    </div>
+  </div>
+  :
+"Please switch to supported network"
+  )}
+    
+  </div>
   );
 }
