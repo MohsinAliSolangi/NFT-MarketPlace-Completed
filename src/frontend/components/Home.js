@@ -77,7 +77,7 @@ const Home = ({ marketplace, nft, account }) => {
     getChainId()
   }, [])
   // if(chainId == 5) {
-if(chainId == 31337) {
+if(chainId == 5) {
   if (loading) return (
     <main style={{ padding: "1rem 0" }}>
       <h2>Loading...</h2>

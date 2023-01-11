@@ -11,6 +11,7 @@ const NftBox = ({ item, idx, marketplace, account, loading, setLoading }) => {
   const [Time, setTime] = useState(0)
   const [bid, setbid] = useState(0)
   const [bidder, setbidder] = useState(null)
+  
   const [NowTime, setNowTime] = useState(0)
 
   const navigate = useNavigate();
@@ -127,7 +128,7 @@ const NftBox = ({ item, idx, marketplace, account, loading, setLoading }) => {
   }
 
 
-  console.log("MOdal ", modal)
+  console.log("MOdal ", item)
 
   useEffect(() => {
     getLastTime();
@@ -143,24 +144,32 @@ const NftBox = ({ item, idx, marketplace, account, loading, setLoading }) => {
           <Card.Img variant="top" src={item.image} />
           <Card.Body color="secondary">
             <Card.Title>{item.name}</Card.Title>
+            <hr />
             <Card.Text>
               {item.description}
-
             </Card.Text>
+
+            <hr />
+            <Card.Text>
+              {`Owned By :  ${item?.seller?.slice(0, 5)}...${item?.seller?.slice(item?.seller.length - 4)}`}
+            </Card.Text>
+            <hr />
+            <Card.Text>
+              {`Price : ${ethers?.utils?.formatEther(item?.totalPrice?.toString())} ETH`} 
+            </Card.Text>
+
             <div> 
             <Card.Text>
               {`Royality Fees : ${item.Royality.toString()} %`}
             </Card.Text>
+ 
             { item.time > 0 ?         
              <div> <Card.Text>
               {`Highest Bid : ${bid} ETH`}
-
             </Card.Text>
             <Card.Text>
               {`Highest Bidder : ${bidder?.slice(0, 5)}...${bidder?.slice(bidder.length - 4)}`}
             </Card.Text>
-
-           
             </div>
             : 
            <></> }
@@ -181,8 +190,10 @@ const NftBox = ({ item, idx, marketplace, account, loading, setLoading }) => {
                     </div>
                     :
                     <div className='d-grid'>
+                          <Countdown date={Time * 1000} />
+                          <hr />
                     <Button onClick={() => setmodal(true)} variant="primary" size="lg" disabled={loading} > Place Bid </Button>
-                    <Countdown date={Time * 1000} /></div>
+                        </div>
                   :
                   bid>0 && bidder?.toString().toLowerCase() === account?.toString().toLowerCase()
                   ? 
@@ -210,7 +221,6 @@ const NftBox = ({ item, idx, marketplace, account, loading, setLoading }) => {
                   </Button>
                   : <Button onClick={() => buyMarketItem(item)} variant="primary" size="lg" disabled={loading}>
                     Buy NFT
-                    {ethers.utils.formatEther(item.totalPrice)} ETH
                   </Button>
               }
 

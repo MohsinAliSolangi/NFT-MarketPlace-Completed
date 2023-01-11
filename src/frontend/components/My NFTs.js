@@ -145,8 +145,8 @@ export default function MyPurchases({ marketplace, nft, account }) {
   }, [account])
 
 
-  // if(chainId ==5) {
-  if(chainId ==31337) {
+  if(chainId ==5) {
+  // if(chainId ==31337) {
     if (loading) return (
       <main style={{ padding: "1rem 0" }}>
         <h2>Loading...</h2>
