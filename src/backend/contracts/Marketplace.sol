@@ -235,7 +235,7 @@ contract Marketplace is ReentrancyGuard {
     function concludeAuction(uint256 itemId,address _msgSender) payable public { 
   
     AuctionDetails memory auction = _auctionDetail[itemId]; 
-    require((_msgSender == _auctionDetail[itemId].seller) || (_msgSender == _auctionDetail[itemId].highestBidder), 'You are not authorized to conclude the auction' ); 
+    require(_msgSender == _auctionDetail[itemId].highestBidder, 'You are not authorized to conclude the auction' ); 
     require(auction.endTime < block.timestamp,"Auction Time remaining"); 
   
     bool ended = _checkAuctionStatus(itemId); 
@@ -277,6 +277,35 @@ contract Marketplace is ReentrancyGuard {
      _returnBids(itemId); 
     totalAuctionCompleted ++; 
     } 
+
+
+    function cancellAuction(uint256 itemId,address _msgSender) payable public { 
+  
+    AuctionDetails memory auction = _auctionDetail[itemId]; 
+    require(_msgSender == _auctionDetail[itemId].seller, 'You are not Owner of this NFT' ); 
+    require(auction.endTime < block.timestamp,"Auction Time remaining"); 
+  
+    bool ended = _checkAuctionStatus(itemId); 
+   
+  
+    if(!ended){ 
+    _updateStatus(itemId); 
+    } 
+    Item storage item = items[itemId];
+    item.nft.transferFrom(address(this), msg.sender, item.tokenId);
+        
+    // update item to sold
+    item.sold = true;
+    // emit Bought event
+    emit Bought(
+        itemId,
+        address(item.nft),
+        item.tokenId,
+        item.price,
+        item.seller,
+        msg.sender
+        );
+    }
     
     //This function is use for is Auction End or Not
     function _checkAuctionStatus(uint256 itemId) public view returns(bool){  
