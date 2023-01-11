@@ -158,8 +158,8 @@ export default function MyPurchases({ marketplace, nft, account }) {
 
     <div className="flex justify-center">
   {(
-  chainId == "31337"
-  // chainId == "5"
+  // chainId == "31337"
+  chainId == "5"
   ?
   <div>
   <div>

@@ -91,8 +91,8 @@ const Create = ({ nft }) => {
   return (
     <div className="container-fluid mt-5">
     {(
-    chainId == "31337"
-    // chainId == "5"
+    // chainId == "31337"
+    chainId == "5"
     ?
       <div className="row">
         <main role="main" className="col-lg-12 mx-auto" style={{ maxWidth: '1000px' }}>
