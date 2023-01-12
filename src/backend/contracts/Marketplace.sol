@@ -374,7 +374,8 @@ contract Marketplace is ReentrancyGuard {
     
       for(uint256 i=0 ;i<=_bid.length-1 ;i++){ 
       if(_bid[i].amount != auction.highestBid ){ 
-      pendingReturns[_bid[i].bidder] += payedBids[_bid[i].bidder][itemId]; 
+      pendingReturns[_bid[i].bidder] += payedBids[_bid[i].bidder][itemId];
+      delete (payedBids[_bid[i].bidder][itemId]);
      } } } 
 
     function getPendingReturns(address account)public view returns(uint256){ 
