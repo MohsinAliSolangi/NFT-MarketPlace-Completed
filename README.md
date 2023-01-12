@@ -24,6 +24,7 @@ $ npm install
 ### 3. Boot up local development blockchain
 ```
 $ cd nft_marketplace
+$ cd backend
 $ npx hardhat node
 ```
 
@@ -35,14 +36,23 @@ $ npx hardhat node
 
 ### 5. Migrate Smart Contracts
 `npx hardhat run src/backend/scripts/deploy.js --network localhost`
+## For testnet 
+npx hardhat run src/backend/scripts/deploy.js --network goerli
 
 ### 6. Run Tests
 `$ npx hardhat test`
 
 ### 7. Launch Frontend
-`$ npm run start`
+$ cd frontend`
+$ npm run start`
 
 License
 ----
 MIT
 
+### Note!!!!!
+$ Dont forget create .env file 
+ALCHEMY_API = .....................
+privateKey = ..............
+REACT_APP_pinata_api_key =.........
+REACT_APP_pinata_secret_api_key = ..............
