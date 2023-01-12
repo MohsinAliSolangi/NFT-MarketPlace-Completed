@@ -116,6 +116,7 @@ const NftBox = ({ item, idx, marketplace, account, loading, setLoading }) => {
       await (await marketplace.bid(item.itemId, { value: bidding })).wait()
       setmodal(false);
       setLoading(false);
+      window.location.reload()
     } catch (error) {
       setLoading(false);
       console.log(error);
@@ -126,9 +127,6 @@ const NftBox = ({ item, idx, marketplace, account, loading, setLoading }) => {
   function getData(val) {
     setPrice(val.target.value)
   }
-
-
-  console.log("MOdal ", item)
 
   useEffect(() => {
     getLastTime();
@@ -153,11 +151,17 @@ const NftBox = ({ item, idx, marketplace, account, loading, setLoading }) => {
             <Card.Text>
               {`Owned By :  ${item?.seller?.slice(0, 5)}...${item?.seller?.slice(item?.seller.length - 4)}`}
             </Card.Text>
+            
             <hr />
+            {item.time > 0 ?
             <Card.Text>
+              {`Initial Price : ${ethers?.utils?.formatEther(item?.totalPrice?.toString())} ETH`} 
+            </Card.Text>
+           : 
+           <Card.Text>
               {`Price : ${ethers?.utils?.formatEther(item?.totalPrice?.toString())} ETH`} 
             </Card.Text>
-
+            } 
             <div> 
             <Card.Text>
               {`Royality Fees : ${item.Royality.toString()} %`}
@@ -186,6 +190,7 @@ const NftBox = ({ item, idx, marketplace, account, loading, setLoading }) => {
                   account.toString().toLowerCase() === item.seller.toString().toLowerCase()
                   ?
                   <div className='d-grid'>
+                    <Countdown date={Time * 1000} />
                     <Button variant="primary" size="lg" disabled={true} > Auction is in progress </Button> 
                     </div>
                     :
