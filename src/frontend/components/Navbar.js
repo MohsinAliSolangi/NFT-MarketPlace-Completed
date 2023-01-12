@@ -6,7 +6,7 @@ import { Navbar, Nav, Button, Container } from 'react-bootstrap'
 
 const Navigation = ({ web3Handler, account }) => {
     return (
-        <Navbar expand="lg" bg="secondary" variant="dark">
+        <Navbar expand="lg" bg="black" variant="dark">
             <Container>
                 <Navbar.Brand href="/">
                     <img src="market.png" width="40" height="40" className="" alt="" />

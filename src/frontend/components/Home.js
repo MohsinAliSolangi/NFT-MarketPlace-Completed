@@ -21,12 +21,9 @@ const Home = ({ marketplace, nft, account }) => {
       const itemCount = await marketplace.itemCount()
       console.log("this is itme count+++++++++++++++", itemCount.toString());
       let items = []
-
       for (let i = 1; i <= itemCount; i++) {
         const item = await marketplace.items(i)
-
         if (!item.sold) {
-
           const auction = await marketplace.isAuction(item.tokenId.toString())
           console.log("this is nft ", auction)
           const time = await marketplace.getLastTime(item.itemId.toString())
@@ -37,11 +34,9 @@ const Home = ({ marketplace, nft, account }) => {
           const response = await fetch(uri)
           const metadata = await response.json()
           // get total price of item (item price + fee)
-
           //get Royality fees in %%%%%%%%%%
           const royality = await nft.getRoyalityFees(item.tokenId);
           const res = Number(royality.toString()) / 100;
-
           items.push({
             time: temp,
             auction: auction,
