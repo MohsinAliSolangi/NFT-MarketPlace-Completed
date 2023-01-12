@@ -37,7 +37,7 @@ $ npx hardhat node
 ### 5. Migrate Smart Contracts
 `npx hardhat run src/backend/scripts/deploy.js --network localhost`
 ## For testnet 
-npx hardhat run src/backend/scripts/deploy.js --network goerli
+`npx hardhat run src/backend/scripts/deploy.js --network goerli`
 
 ### 6. Run Tests
 `$ npx hardhat test`
