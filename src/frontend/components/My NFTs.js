@@ -19,7 +19,6 @@ export default function MyPurchases({ marketplace, nft, account }) {
   const getChainId = ()=> {
     const id = Number(window.ethereum.chainId)
     setChainId(id)
-    console.log("rabeeb",id)
   }
   
 
@@ -46,7 +45,7 @@ export default function MyPurchases({ marketplace, nft, account }) {
             marketplace: marketplace.address,
             name: metadata.name,
             description: metadata.description,
-            image: metadata.image.pinataURL,
+            image: metadata.image,
             Royality: res
           })
           setPurchases(purchasedItem)
@@ -112,7 +111,6 @@ export default function MyPurchases({ marketplace, nft, account }) {
   const getPendingReturns = async () => {
     try {
       const getbid = await marketplace.getPendingReturns(account);
-      console.log("rabeeb",getbid)
       if(getbid>0){
         setBid(false);
       }   
@@ -140,13 +138,14 @@ export default function MyPurchases({ marketplace, nft, account }) {
   },[])
 
   useEffect(() => {
+    console.log("this is purchases",purchases);
     loadPurchasedItems();
     getPendingReturns();
   }, [account])
 
 
-  if(chainId ==5) {
-  // if(chainId ==31337) {
+  // if(chainId ==5) {
+  if(chainId ==31337) {
     if (loading) return (
       <main style={{ padding: "1rem 0" }}>
         <h2>Loading...</h2>
@@ -158,8 +157,8 @@ export default function MyPurchases({ marketplace, nft, account }) {
 
     <div className="flex justify-center">
   {(
-  // chainId == "31337"
-  chainId == "5"
+  chainId == "31337"
+  // chainId == "5"
   ?
   <div>
   <div>

@@ -17,7 +17,6 @@ const Create = ({ nft }) => {
   const getChainId = ()=> {
     const id = Number(window.ethereum.chainId)
     setChainId(id)
-    console.log("rabeeb",id)
   }
 
   async function OnChangeFile(e) {
@@ -30,9 +29,8 @@ const Create = ({ nft }) => {
         console.log("this is image file ", file);
         const resut = await uploadFileToIPFS(file);
         //const result = await client.add(file)
-        console.log(resut)
-        setImage(resut);
-        
+        console.log("!!!!!!!!!!!!!!!!!!",resut)
+        setImage(resut.pinataURL);
         setLoading(false)
       } catch (error) {
         setLoading(false)
@@ -45,20 +43,29 @@ const Create = ({ nft }) => {
   const createNFT = async () => {
 
 
-    console.log("this is image ", image);
+    console.log("this is image????????????? ", image);
     console.log("this is name ", name);
     console.log("this is description ", description);
 
     if (!image || !name || !description) return
-
+    //let temp = image.("https://gateway.pinata.cloud/ipfs/").replace("https://gateway.pinata.cloud/ipfs/");
     const nftJSON = {
-      name, description, image
+      "attributes":[
+      {"trait_type":`${name}`,"value":"Testing"},
+      {"trait_type":"First","value":"Onwer"},
+      {"trait_type":"NFT","value":"Developer"},
+      {"trait_type":"Web3","value":"FullStack"}],
+      "description":`${description}`,
+      "image":`${image}`,
+      "name":`${name}`
     }
+
 
     try {
       setLoading(true)
       const result = await uploadJSONToIPFS(nftJSON)
-     await (await mintThenList(result)).wait()
+     console.log("this is json image format ",result);
+     await mintThenList(result)
      setName("")
      setDescription("")
      setRoyality("")
@@ -91,8 +98,8 @@ const Create = ({ nft }) => {
   return (
     <div className="container-fluid mt-5">
     {(
-    // chainId == "31337"
-    chainId == "5"
+    chainId == "31337"
+    // chainId == "5"
     ?
       <div className="row">
         <main role="main" className="col-lg-12 mx-auto" style={{ maxWidth: '1000px' }}>
