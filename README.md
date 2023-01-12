@@ -50,9 +50,10 @@ License
 ----
 MIT
 
-### Note!!!!!
-$ Dont forget create .env file 
--ALCHEMY_API = .....................
--privateKey = ..............
--REACT_APP_pinata_api_key =.........
--REACT_APP_pinata_secret_api_key = ..............
+### 8. Note!!!!!
+$ Dont forget create .env file
+
+-`$ ALCHEMY_API=...` 
+-`$ privateKey=...` 
+-`$ REACT_APP_pinata_api_key=..`
+-`$ REACT_APP_pinata_secret_api_key=..`
