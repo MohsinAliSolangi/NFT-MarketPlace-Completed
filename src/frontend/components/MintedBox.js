@@ -81,10 +81,12 @@ return (
             <Card.Title>{item.name}</Card.Title>
                 
                 <Card.Text>
+                    <hr/>
                       {item.description}
 
                 </Card.Text>
                     <Card.Text>
+                    <hr/>
                       {`Royality Fees ${item.Royality.toString()} %`}
                     </Card.Text>
                   </Card.Body>

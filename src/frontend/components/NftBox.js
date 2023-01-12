@@ -11,13 +11,8 @@ const NftBox = ({ item, idx, marketplace, account, loading, setLoading }) => {
   const [Time, setTime] = useState(0)
   const [bid, setbid] = useState(0)
   const [bidder, setbidder] = useState(null)
-  
   const [NowTime, setNowTime] = useState(0)
-
   const navigate = useNavigate();
-
-
-
 
   const getLastTime = async () => {
     try {
@@ -33,11 +28,9 @@ const NftBox = ({ item, idx, marketplace, account, loading, setLoading }) => {
 
   const getHigestBid = async () => {
     try {
-
       let bid = await marketplace.getHighestBid(item.itemId);
       setbid(ethers.utils.formatEther(bid))
       console.log("this is bid", bid.toString());
-
     } catch (error) {
       console.log(error);
     }

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Row, Form, Button } from 'react-bootstrap'
 import { uploadFileToIPFS, uploadJSONToIPFS } from "./pinata";
 import {useNavigate} from "react-router-dom";
+import { messagePrefix } from '@ethersproject/hash';
+import { ethers } from 'ethers';
 
 
 
@@ -81,8 +83,8 @@ const Create = ({ nft }) => {
   const mintThenList = async (result) => {
     try {
       setLoading(true)
-
-      await (await nft.mint(result.pinataURL, royality)).wait()
+ 
+      await (await nft.mint(result.pinataURL,royality)).wait()
 
     } catch (error) {
       setLoading(false)
@@ -98,8 +100,8 @@ const Create = ({ nft }) => {
   return (
     <div className="container-fluid mt-5">
     {(
-    chainId == "31337"
-    // chainId == "5"
+    // chainId == "31337"
+    chainId == "5"
     ?
       <div className="row">
         <main role="main" className="col-lg-12 mx-auto" style={{ maxWidth: '1000px' }}>

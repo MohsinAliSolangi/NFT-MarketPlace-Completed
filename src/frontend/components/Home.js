@@ -71,8 +71,8 @@ const Home = ({ marketplace, nft, account }) => {
   useEffect(() => {
     getChainId()
   }, [])
-  if(chainId == 31337) {
-// if(chainId == 5) {
+  // if(chainId == 31337) {
+if(chainId == 5) {
   if (loading) return (
     <main style={{ padding: "1rem 0" }}>
       <h2>Loading...</h2>
@@ -83,8 +83,8 @@ const Home = ({ marketplace, nft, account }) => {
   return (
     <div className="flex justify-center">
      {( 
-      chainId == "31337"
-      // chainId == "5"
+      // chainId == "31337"
+      chainId == "5"
       ?
       <div>
       {items.length > 0 ?
