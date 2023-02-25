@@ -19,7 +19,7 @@ const Home = ({ marketplace, nft, account }) => {
     try {
       // Load all unsold items
       const itemCount = await marketplace.itemCount()
-      console.log("this is itme count+++++++++++++++", itemCount.toString());
+      console.log(itemCount.toString());
       let items = []
       for (let i = 1; i <= itemCount; i++) {
         const item = await marketplace.items(i)
@@ -61,7 +61,6 @@ const Home = ({ marketplace, nft, account }) => {
   const getChainId = ()=> {
     const id = Number(window.ethereum.chainId)
     setChainId(id)
-    console.log("rabeeb",id)
   }
 
   useEffect(() => {
