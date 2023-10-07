@@ -67,9 +67,9 @@ const MintedBox = ({ item, idx, marketplace, account,nft}) => {
     }
 
 
-useEffect(() => {
-    console.log(item);
-}, []);
+// useEffect(() => {
+//     // console.log(item);
+// }, []);
 
 
 return (

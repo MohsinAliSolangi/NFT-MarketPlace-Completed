@@ -19,13 +19,13 @@ const Home = ({ marketplace, nft, account }) => {
     try {
       // Load all unsold items
       const itemCount = await marketplace.itemCount()
-      console.log(itemCount.toString());
+      // console.log(itemCount.toString());
       let items = []
       for (let i = 1; i <= itemCount; i++) {
         const item = await marketplace.items(i)
         if (!item.sold) {
           const auction = await marketplace.isAuction(item.tokenId.toString())
-          console.log("this is nft ", auction)
+          // console.log("this is nft ", auction)
           const time = await marketplace.getLastTime(item.itemId.toString())
           const temp = Number(time.toString())
           // get uri url from nft contract

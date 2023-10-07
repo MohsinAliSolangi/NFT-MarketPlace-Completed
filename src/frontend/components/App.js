@@ -24,10 +24,8 @@ function App() {
   const [account, setAccount] = useState(null)
   const [nft, setNFT] = useState({})
   const [marketplace, setMarketplace] = useState({})
-  ethereum.on("accountsChanged", async (account) => {
-    setAccount(account[0]);
-    window.location.reload()
-  })
+
+
 
   const changeNetwork = async () => {
     try {
@@ -47,9 +45,7 @@ function App() {
       console.log(err.message);
     }
   };
-  window.ethereum && ethereum.on("chainChanged", async () => {
-    window.location.reload();
-  });
+
 
   const checkIsWalletConnected = async () => {  
     try {
@@ -57,7 +53,7 @@ function App() {
       const accounts = await ethereum.request({ method: "eth_accounts" });
       if (accounts.length) {
         setAccount(accounts[0]);
-        console.log("Account", accounts[0])
+        // console.log("Account", accounts[0])
         // Get provider from Metamask
         const provider = new ethers.providers.Web3Provider(window.ethereum)
         // Set signer
@@ -66,6 +62,15 @@ function App() {
       } else {
         console.log("No account Found");
       }
+      
+      ethereum.on("accountsChanged", async (account) => {
+        setAccount(account[0]);
+        window.location.reload()
+      })
+
+      window.ethereum && ethereum.on("chainChanged", async () => {
+        window.location.reload();
+      });
     } catch (err) {
 
       throw new Error("No ethereum Object");

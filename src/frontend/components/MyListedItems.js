@@ -63,7 +63,7 @@ export default function MyListedItems({ marketplace, nft, account }) {
   }
   useEffect(() => {
     loadListedItems();
-    console.log("this is listed items",listedItems);  
+    // console.log("this is listed items",listedItems);  
   }, [])
   if (loading) return (
     <main style={{ padding: "1rem 0" }}>

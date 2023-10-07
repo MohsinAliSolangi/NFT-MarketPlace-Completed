@@ -28,10 +28,10 @@ const Create = ({ nft }) => {
     if (typeof file !== 'undefined') {
       try {
         setLoading(true)
-        console.log("this is image file ", file);
+        // console.log("this is image file ", file);
         const resut = await uploadFileToIPFS(file);
         //const result = await client.add(file)
-        console.log("!!!!!!!!!!!!!!!!!!",resut)
+        // console.log("!!!!!!!!!!!!!!!!!!",resut)
         setImage(resut.pinataURL);
         setLoading(false)
       } catch (error) {
@@ -45,9 +45,9 @@ const Create = ({ nft }) => {
   const createNFT = async () => {
 
 
-    console.log("this is image????????????? ", image);
-    console.log("this is name ", name);
-    console.log("this is description ", description);
+    // console.log("this is image????????????? ", image);
+    // console.log("this is name ", name);
+    // console.log("this is description ", description);
 
     if (!image || !name || !description) return
     //let temp = image.("https://gateway.pinata.cloud/ipfs/").replace("https://gateway.pinata.cloud/ipfs/");
@@ -66,7 +66,7 @@ const Create = ({ nft }) => {
     try {
       setLoading(true)
       const result = await uploadJSONToIPFS(nftJSON)
-     console.log("this is json image format ",result);
+    //  console.log("this is json image format ",result);
      await mintThenList(result)
      setName("")
      setDescription("")

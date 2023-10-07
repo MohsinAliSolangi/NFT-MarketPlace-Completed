@@ -47,7 +47,7 @@ export const uploadFileToIPFS = async(file) => {
             }
         })
         .then(function (response) {
-            console.log("image uploaded", response.data.IpfsHash)
+            // console.log("image uploaded", response.data.IpfsHash)
             return {
                success: true,
                pinataURL:"https://ipfs.io/ipfs/"+response.data.IpfsHash

@@ -36,7 +36,7 @@ export default function MyPurchases({ marketplace, nft, account }) {
           const royality = await nft.getRoyalityFees(i);
           const res = Number(royality.toString()) / 100
           // define listed item object
-          console.log("&&&&&&&&",uri,res);       
+          // console.log("&&&&&&&&",uri,res);       
         purchasedItem.push({
             nft: nft.address,
             itemId: i,
@@ -68,7 +68,7 @@ export default function MyPurchases({ marketplace, nft, account }) {
         const getbid = await marketplace.getPendingReturns(account);
         if (getbid > 0) {
             setBid(false);
-            console.log("this is bid ",getbid.toString())
+            // console.log("this is bid ",getbid.toString())
         }
     } catch (error) {
         console.log(error)
