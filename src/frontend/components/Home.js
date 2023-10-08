@@ -3,7 +3,7 @@ import { Row } from 'react-bootstrap'
 import NftBox from './NftBox';
 
 
-const Home = ({ marketplace, nft, account }) => {
+const Home = ({ getnft, getmarketplace, getContracts, marketplace, nft, account }) => {
   const [loading, setLoading] = useState(true)
   const [items, setItems] = useState([])
   const [load, setLoad] = useState(false)
@@ -12,40 +12,37 @@ const Home = ({ marketplace, nft, account }) => {
   
   
   const loadMarketplaceItems = async () => {
-  
-
-  
-
     try {
+      setLoading(true);
       // Load all unsold items
-      const itemCount = await marketplace.itemCount()
+      const itemCount = await getmarketplace.itemCount()
       // console.log(itemCount.toString());
       let items = []
       for (let i = 1; i <= itemCount; i++) {
-        const item = await marketplace.items(i)
+        const item = await getmarketplace.items(i)
         if (!item.sold) {
-          const auction = await marketplace.isAuction(item.tokenId.toString())
+          const auction = await getmarketplace.isAuction(item?.tokenId?.toString())
           // console.log("this is nft ", auction)
-          const time = await marketplace.getLastTime(item.itemId.toString())
-          const temp = Number(time.toString())
+          const time = await getmarketplace.getLastTime(item?.itemId?.toString())
+          const temp = Number(time?.toString())
           // get uri url from nft contract
-          const uri = await nft.tokenURI(item.tokenId)
+          const uri = await getnft.tokenURI(item?.tokenId)
           // use uri to fetch the nft metadata stored on ipfs
           const response = await fetch(uri)
           const metadata = await response.json()
           // get total price of item (item price + fee)
           //get Royality fees in %%%%%%%%%%
-          const royality = await nft.getRoyalityFees(item.tokenId);
-          const res = Number(royality.toString()) / 100;
+          const royality = await getnft.getRoyalityFees(item?.tokenId);
+          const res = Number(royality?.toString()) / 100;
           items.push({
             time: temp,
             auction: auction,
-            totalPrice: item.price,
-            itemId: item.itemId,
-            seller: item.seller,
-            name: metadata.name,
-            description: metadata.description,
-            image: metadata.image,
+            totalPrice: item?.price,
+            itemId: item?.itemId,
+            seller: item?.seller,
+            name: metadata?.name,
+            description: metadata?.description,
+            image: metadata?.image,
             Royality: res
 
           })
@@ -53,58 +50,44 @@ const Home = ({ marketplace, nft, account }) => {
       }
       setLoading(false)
       setItems(items)
+      
     } catch (error) {
+      setLoading(false)
       console.log(error);
     }
   }
 
-  const getChainId = ()=> {
-    const id = Number(window.ethereum.chainId)
-    setChainId(id)
-  }
-
+ 
   useEffect(() => {
     loadMarketplaceItems();
   }, [])
 
   useEffect(() => {
-    getChainId()
-  }, [])
-  // if(chainId == 31337) {
-if(chainId == 5) {
-  if (loading) return (
-    <main style={{ padding: "1rem 0" }}>
-      <h2>Loading...</h2>
-    </main>
-  )
-}
+    getContracts();
+  }, [account])
+
 
   return (
     <div className="flex justify-center">
-     {( 
-      // chainId == "31337"
-      chainId == "5"
-      ?
-      <div>
-      {items.length > 0 ?
+  
+      {loading ? (
+      <main style={{ padding: "1rem 0" }}>
+        <h2>Loading...</h2>
+      </main>
+      ) :
+      items?.length > 0 ?
         <div className="px-5 container">
           <Row className="mt-5">
-            {items.map((item, idx) => (
+            {items?.map((item, idx) => (
               <NftBox item={item} idx={idx} setLoading = {setLoad} loading = {load} marketplace={marketplace} account={account} />
             ))}
           </Row>
-
-
         </div>
         : (
           <main style={{ padding: "1rem 0" }}>
             <h2>No listed assets</h2>
           </main>
         )}
-        </div>
-    :
-    "Please switch to supported network"
-    )}
     </div>
   );
 }
